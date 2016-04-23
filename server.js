@@ -23,7 +23,7 @@ function value_or_default(value, default_value) {
 
 
 function get_query_variable(query_string, variable) {
-	if ((typeof query_string) !== 'undefined') {
+	if ((typeof query_string) !== 'undefined' && query_string !== null && query_string !== '') {
 		var vars = query_string.split('&');
 	
 		for (var i = 0; i < vars.length; i++) {
