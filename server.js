@@ -1,7 +1,20 @@
 var http = require("http");
+var url = require('url');
 
 
-json_whitespace = 3;
+var json_whitespace = 3;
+
+
+Array.prototype.clean = function(deleteValue) {
+	for (var i = 0; i < this.length; i++) {
+		if (this[i] == deleteValue) {         
+			this.splice(i, 1);
+			i--;
+		}
+	}
+
+	return this;
+};
 
 
 send_json = function(response, json, response_code) {
@@ -90,9 +103,23 @@ build_drone_result_json = function(drone_id) {
 };
 
 
+route_request = function(paths) {
+	result = {}
+	result.data = build_drone_result_json(paths[1]);
+	result.code = 200;
+	return result;
+};
+
+
 server = function(request, response) {
+    var url_parts = url.parse(request.url);
+    var paths = url_parts.pathname.split('/').clean('');
+
     console.log("Request");
-    send_json(response, build_drone_result_json());
+    console.log(paths);
+    
+    json_response = route_request(paths);
+    send_json(response, json_response.data, json_response.code);
     response.end();
 };
 
