@@ -7,17 +7,20 @@ Have [node](https://nodejs.org/) installed.
 
 # Running the server
 
+(The DEBUG option can be skipped and will default to `false`.)
+
 ## On *Nix
 
 Run:
 
-* `PORT=8080 node server.js`
+* `PORT=8080 DEBUG={true|false} node server.js`
 
 ## On Windows
 
 Run:
 
 * `set PORT=8080`
+* `set DEBUG={true|false}`
 * `node server.js`
 
 # Getting drone data

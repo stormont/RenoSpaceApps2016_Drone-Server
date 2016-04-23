@@ -17,15 +17,20 @@ Array.prototype.clean = function(deleteValue) {
 };
 
 
+value_or_default = function(value, default_value) {
+	return (typeof value) !== 'undefined' ? value : default_value;
+};
+
+
 send_json = function(response, json, response_code) {
-	response_code = (typeof response_code) !== 'undefined' ? response_code : 200;
+	response_code = value_or_default(response_code, 200);
     response.writeHeader(response_code, {"Content-Type": "application/json"});
     response.write(JSON.stringify(json, null, json_whitespace));
 };
 
 
 send_plain_text = function(response, text, response_code) {
-	response_code = (typeof response_code) !== 'undefined' ? response_code : 200;
+	response_code = value_or_default(response_code, 200);
     response.writeHeader(response_code, {"Content-Type": "text/plain"});
     response.write(text);
 };
@@ -93,11 +98,12 @@ get_local_weather = function(gps) {
 };
 
 
-build_drone_result_json = function(drone_id) {
+build_drone_result_json = function(drone_id, distance) {
+	distance = value_or_default(distance, 20.0);
 	data = {};
 	data.drone_id = drone_id;
 	data.location = get_drone_location(drone_id);
-	data.no_fly_zones = get_nearby_no_fly_zones(data.location, 20.0);
+	data.no_fly_zones = get_nearby_no_fly_zones(data.location, distance);
 	data.weather = get_local_weather(data.location);
 	return data;
 };
@@ -115,8 +121,10 @@ server = function(request, response) {
     var url_parts = url.parse(request.url);
     var paths = url_parts.pathname.split('/').clean('');
 
-    console.log("Request");
-    console.log(paths);
+	if (process.env.DEBUG === 'true') {
+	    console.log("Request");
+    	console.log(paths);
+    }
     
     json_response = route_request(paths);
     send_json(response, json_response.data, json_response.code);
@@ -125,4 +133,4 @@ server = function(request, response) {
 
 
 http.createServer(server).listen(process.env.PORT);
-console.log("Server Running on " + process.env.PORT); 
+console.log("Server running on " + process.env.PORT); 
