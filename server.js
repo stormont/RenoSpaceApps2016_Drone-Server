@@ -17,32 +17,52 @@ Array.prototype.clean = function(deleteValue) {
 };
 
 
-value_or_default = function(value, default_value) {
+function value_or_default(value, default_value) {
 	return (typeof value) !== 'undefined' ? value : default_value;
 };
 
 
-send_json = function(response, json, response_code) {
+function get_query_variable(query_string, variable) {
+	if ((typeof query_string) !== 'undefined') {
+		var vars = query_string.split('&');
+	
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split('=');
+		
+			if (decodeURIComponent(pair[0]) === variable) {
+				return decodeURIComponent(pair[1]);
+			}
+		}
+	
+		console.log('Query variable %s not found', variable);
+		return 'undefined';
+	}
+	
+	return 'undefined';
+}
+
+
+function send_json(response, json, response_code) {
 	response_code = value_or_default(response_code, 200);
     response.writeHeader(response_code, {"Content-Type": "application/json"});
     response.write(JSON.stringify(json, null, json_whitespace));
 };
 
 
-send_plain_text = function(response, text, response_code) {
+function send_plain_text(response, text, response_code) {
 	response_code = value_or_default(response_code, 200);
     response.writeHeader(response_code, {"Content-Type": "text/plain"});
     response.write(text);
 };
 
 
-get_drone_location = function(drone_id) {
+function get_drone_location(drone_id) {
 	location = { "lat": 12.1234, "lng": -90.1234 };
 	return location;
 };
 
 
-get_nearby_no_fly_zones = function(gps, distance) {
+function get_nearby_no_fly_zones(gps, distance) {
 	no_fly_zones = [
 		{
 			"type": "polygon",
@@ -78,7 +98,7 @@ get_nearby_no_fly_zones = function(gps, distance) {
 };
 
 
-get_local_weather = function(gps) {
+function get_local_weather(gps) {
 	weather = {
 		"time": "23 Apr 14:15 pm EDT",
 		"temp": 29.2,
@@ -98,7 +118,7 @@ get_local_weather = function(gps) {
 };
 
 
-build_drone_result_json = function(drone_id, distance) {
+function build_drone_result_json(drone_id, distance) {
 	distance = value_or_default(distance, 20.0);
 	data = {};
 	data.drone_id = drone_id;
@@ -109,20 +129,22 @@ build_drone_result_json = function(drone_id, distance) {
 };
 
 
-route_request = function(paths) {
+function route_request(paths, query) {
+	dist = get_query_variable(query, 'nfzd')
 	result = {}
-	result.data = build_drone_result_json(paths[1]);
+	result.data = build_drone_result_json(paths[1], dist);
 	result.code = 200;
 	return result;
 };
 
 
-server = function(request, response) {
+function server(request, response) {
     var url_parts = url.parse(request.url);
     var paths = url_parts.pathname.split('/').clean('');
 
 	if (process.env.DEBUG === 'true') {
 	    console.log("Request");
+	    console.log(url_parts);
     	console.log(paths);
     }
     

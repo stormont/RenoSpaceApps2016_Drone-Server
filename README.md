@@ -7,7 +7,7 @@ Have [node](https://nodejs.org/) installed.
 
 # Running the server
 
-(The DEBUG option can be skipped and will default to `false`.)
+(The `DEBUG` option can be skipped and will default to `false`.)
 
 ## On *Nix
 
