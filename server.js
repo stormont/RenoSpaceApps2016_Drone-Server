@@ -38,7 +38,7 @@ function get_query_variable(query_string, variable) {
 		return 'undefined';
 	}
 	
-	return 'undefined';
+	return;
 }
 
 
@@ -129,12 +129,22 @@ function build_drone_result_json(drone_id, distance) {
 };
 
 
-function route_request(paths, query) {
-	dist = get_query_variable(query, 'nfzd')
-	result = {}
-	result.data = build_drone_result_json(paths[1], dist);
+function get_drone_data(drone_id, query) {
+	dist = get_query_variable(query, 'nfzd');
+	result = {};
+	result.data = build_drone_result_json(drone_id, dist);
 	result.code = 200;
 	return result;
+};
+
+
+function route_request(paths, query) {
+	switch (paths[0]) {
+		case "drone":
+			return get_drone_data(paths[1], query);
+		default:
+			return;
+	}
 };
 
 
@@ -148,8 +158,12 @@ function server(request, response) {
     	console.log(paths);
     }
     
-    json_response = route_request(paths);
-    send_json(response, json_response.data, json_response.code);
+    json_response = route_request(paths, url_parts.query);
+    
+    if ((typeof json_response) !== 'undefined') {
+	    send_json(response, json_response.data, json_response.code);
+	}
+    
     response.end();
 };
 
