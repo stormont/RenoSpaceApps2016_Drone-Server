@@ -1,7 +1,12 @@
 var http = require("http");
 var url = require('url');
+var fs = require("fs");
+var sqlite3 = require("sqlite3");
 
 
+var db_file = "drones.db";
+var db_existed = fs.existsSync(db_file);
+var db = new sqlite3.Database(db_file);
 var json_whitespace = 3;
 
 
@@ -138,10 +143,45 @@ function get_drone_data(drone_id, query) {
 };
 
 
-function route_request(paths, query) {
+function post_drone_data(drone_id, query) {
+	id = get_query_variable(query, 'id');
+	lat = get_query_variable(query, 'lat');
+	lng = get_query_variable(query, 'lng');
+	
+	if ((typeof id) !== 'undefined' && (typeof lat) !== 'undefined' && (typeof lng) !== 'undefined') {
+		db.all('SELECT * FROM drones WHERE drone_id=' + id, function(err, rows) {
+			if ((typeof rows) !== 'undefined' && rows.length > 0) {
+				if (process.env.DEBUG === 'true') {
+					console.log('Updating DB');
+				}
+				
+				db.run('UPDATE drones SET lat=' + lat + ', lng=' + lng + ' WHERE drone_id=' + id);
+			} else {
+				if (process.env.DEBUG === 'true') {
+					console.log('Inserting into DB');
+				}
+				
+				db.run('INSERT INTO drones(drone_id, lat, lng) VALUES (' + id + ', ' + lat + ', ' + lng + ')');
+			}
+		});
+	}
+};
+
+
+function route_get_request(paths, query) {
 	switch (paths[0]) {
 		case "drone":
 			return get_drone_data(paths[1], query);
+		default:
+			return;
+	}
+};
+
+
+function route_post_request(paths, query) {
+	switch (paths[0]) {
+		case "drone":
+			return post_drone_data(paths[1], query);
 		default:
 			return;
 	}
@@ -158,14 +198,27 @@ function server(request, response) {
     	console.log(paths);
     }
     
-    json_response = route_request(paths, url_parts.query);
+    if (request.method === 'GET') {
+	    json_response = route_get_request(paths, url_parts.query);
     
-    if ((typeof json_response) !== 'undefined') {
-	    send_json(response, json_response.data, json_response.code);
+    	if ((typeof json_response) !== 'undefined') {
+	    	send_json(response, json_response.data, json_response.code);
+		}
+    
+	    response.end();
+	} else if (request.method === 'POST') {
+		console.log('Got POST request');
+		route_post_request(paths, url_parts.query);
+		response.end();
 	}
-    
-    response.end();
 };
+
+
+db.serialize(function() {
+	if(!db_existed) {
+		db.run("CREATE TABLE drones (drone_id INTEGER, lat REAL, lng REAL)");
+	}
+});
 
 
 http.createServer(server).listen(process.env.PORT);
