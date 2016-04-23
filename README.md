@@ -5,6 +5,11 @@ Server for drone app
 
 Have [node](https://nodejs.org/) installed.
 
+Add additional packages:
+
+* `npm install request --save`
+* `npm install sqlite3 --save`
+
 # Running the server
 
 (The `DEBUG` option can be skipped and will default to `false`.)
