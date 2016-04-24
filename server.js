@@ -56,21 +56,21 @@ function get_query_variable(query_string, variable) {
 
 
 function send_json(response, json, response_code) {
-	response_code = value_or_default(response_code, 200);
+	var response_code = value_or_default(response_code, 200);
     response.writeHeader(response_code, {"Content-Type": "application/json"});
     response.write(JSON.stringify(json, null, json_whitespace));
 };
 
 
 function send_plain_text(response, text, response_code) {
-	response_code = value_or_default(response_code, 200);
+	var response_code = value_or_default(response_code, 200);
     response.writeHeader(response_code, {"Content-Type": "text/plain"});
     response.write(text);
 };
 
 
 function get_drone_location(drone_id, callback) {
-	location = { "lat": 0.0, "lng": 0.0 };
+	var location = { "lat": 0.0, "lng": 0.0 };
 	
 	db.all("SELECT * FROM drones WHERE drone_id='" + drone_id + "'", function(err, rows) {
 		if (process.env.DEBUG === 'true') {
@@ -88,7 +88,7 @@ function get_drone_location(drone_id, callback) {
 
 
 function get_nearby_no_fly_zones(gps, distance, callback) {
-	no_fly_zones = [
+	var no_fly_zones = [
 		{
 			"type": "polygon",
 			"comment": "Expected to form a closed shape around the No Fly Zone",
@@ -154,7 +154,7 @@ function get_local_weather(gps, callback) {
 				}
             }
 
-			weather = {
+			var weather = {
 				"time": json.currently.time,
 				"desc": json.currently.summary,
 				"temp": json.currently.temperature,
@@ -171,8 +171,8 @@ function get_local_weather(gps, callback) {
 
 
 function build_drone_result_json(drone_id, distance, callback) {
-	distance = value_or_default(distance, 20.0);
-	data = {};
+	var distance = value_or_default(distance, 20.0);
+	var data = {};
 	data.drone_id = drone_id;
 	
 	get_drone_location(drone_id, function(result) {
@@ -189,7 +189,7 @@ function build_drone_result_json(drone_id, distance, callback) {
 
 
 function get_drone_data(drone_id, query, callback) {
-	dist = get_query_variable(query, 'nfzd');
+	var dist = get_query_variable(query, 'nfzd');
 	build_drone_result_json(drone_id, dist, function(data) {
 		result = {};
 		result.data = data;
@@ -200,9 +200,9 @@ function get_drone_data(drone_id, query, callback) {
 
 
 function post_drone_data(drone_id, query) {
-	id = get_query_variable(query, 'id');
-	lat = get_query_variable(query, 'lat');
-	lng = get_query_variable(query, 'lng');
+	var id = get_query_variable(query, 'id');
+	var lat = get_query_variable(query, 'lat');
+	var lng = get_query_variable(query, 'lng');
 	
 	if ((typeof id) !== 'undefined' && (typeof lat) !== 'undefined' && (typeof lng) !== 'undefined') {
 		db.all("SELECT * FROM drones WHERE drone_id='" + id + "'", function(err, rows) {
