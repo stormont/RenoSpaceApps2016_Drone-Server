@@ -179,7 +179,7 @@ function build_drone_result_json(drone_id, distance, callback) {
 		data.location = result;
 		for (var key in dummy_zones) {
 			var obj = dummy_zones [key];
-			if obj.location.lat == data.location.lat && obj.location.lng == data.location.lng {
+			if (obj.location.lat == data.location.lat && obj.location.lng == data.location.lng) {
 				data.weather = obj.weather;
 				data.no_fly_zones = obj.no_fly_zones;
 			}
