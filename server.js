@@ -1,4 +1,5 @@
 var http = require("http");
+var https = require("https");
 var url = require('url');
 var fs = require("fs");
 var sqlite3 = require("sqlite3");
@@ -8,6 +9,7 @@ var db_file = "drones.db";
 var db_existed = fs.existsSync(db_file);
 var db = new sqlite3.Database(db_file);
 var json_whitespace = 3;
+var weather_token = '';
 
 
 Array.prototype.clean = function(deleteValue) {
@@ -116,22 +118,49 @@ function get_nearby_no_fly_zones(gps, distance, callback) {
 
 
 function get_local_weather(gps, callback) {
-	weather = {
-		"time": "23 Apr 14:15 pm EDT",
-		"temp": 29.2,
-		"wind_speed": 1.5,
-		"wind_direction": 1,
-		"wind_gust": 4.5,
-		"precip": 0.5,
-		"visibility": 10.1,
-		"hazards":
-		[
-			{
-				"desc": "This is a hazard.",
-				"url": "http://www.weather.gov/hazard_url"
-			}
-		]};
-	callback(weather);
+	var host = 'api.forecast.io';
+	var path = '/forecast/' + weather_token + '/' + gps.lat + ',' + gps.lng;
+
+	https.get({
+        host: host,
+        path: path
+    }, function(response) {
+        var body = '';
+        
+        if (process.env.DEBUG === 'true') {
+        	console.log('Requesting from: ' + host + path);
+        }
+        
+        response.on('data', function(d) {
+            body += d;
+        });
+        
+        response.on('end', function() {
+            var json = JSON.parse(body);
+            var hazards = [];
+            
+            if ((typeof json.alerts) !== 'undefined') {
+				for (var i = 0; i < json.alerts.length; ++i) {
+					hazards.append({
+						"desc": json.alerts[i].description,
+						"url": json.alerts[i].uri
+					});
+				}
+            }
+
+			weather = {
+				"time": json.currently.time,
+				"desc": json.currently.summary,
+				"temp": json.currently.temperature,
+				"wind_speed": json.currently.windSpeed,
+				"wind_direction": json.currently.windBearing,
+				"wind_gust": 0.0,
+				"precip": json.hourly.data[0].precipIntensity,
+				"visibility": json.currently.visibility,
+				"hazards": hazards};
+			callback(weather);
+        });
+    });
 };
 
 
@@ -247,5 +276,12 @@ db.serialize(function() {
 });
 
 
-http.createServer(server).listen(process.env.PORT);
-console.log("Server running on " + process.env.PORT); 
+fs.readFile('weather_token.txt', 'utf8', function (err, data) {
+	if (err) {
+		return console.log(err);
+	}
+	
+	weather_token = data;
+	http.createServer(server).listen(process.env.PORT);
+	console.log("Server running on " + process.env.PORT); 
+});

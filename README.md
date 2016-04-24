@@ -10,6 +10,10 @@ Add additional packages:
 * `npm install request --save`
 * `npm install sqlite3 --save`
 
+Get an API key for [forecast.io](https://developer.forecast.io/). Save the API key to the following file in the root directory:
+
+* `weather_token.txt`
+
 # Running the server
 
 (The `DEBUG` option can be skipped and will default to `false`.)
