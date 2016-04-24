@@ -177,21 +177,22 @@ function build_drone_result_json(drone_id, distance, callback) {
 	
 	get_drone_location(drone_id, function(result) {
 		data.location = result;
-		for (var key in dummy_zones) {
-			var obj = dummy_zones [key];
+		dummy_zones.forEach (function (obj){
 			if (obj.location.lat == data.location.lat && obj.location.lng == data.location.lng) {
 				data.weather = obj.weather;
 				data.no_fly_zones = obj.no_fly_zones;
 			}
-			callback(data);
-		}
-		get_nearby_no_fly_zones(data.location, distance, function(result) {
-			data.no_fly_zones = result;
-			get_local_weather(data.location, function(result) {
-				data.weather = result;
-				callback(data);
-			});
 		});
+		callback(data);
+
+		//TODO: Use live data
+		// get_nearby_no_fly_zones(data.location, distance, function(result) {
+		// 	data.no_fly_zones = result;
+		// 	get_local_weather(data.location, function(result) {
+		// 		data.weather = result;
+		// 		callback(data);
+		// 	});
+		// });
 	});
 };
 
@@ -329,8 +330,10 @@ function create_db() {
 
 
 function start_server() {
-	http.createServer(server).listen(process.env.PORT);
-	console.log("Server running on " + process.env.PORT);
+	var port = process.env.PORT || 8080;
+	http.createServer(server).listen(port);
+
+	console.log("Server running on " + port);
 };
 
 
