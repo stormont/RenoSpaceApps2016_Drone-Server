@@ -62,7 +62,21 @@ function send_plain_text(response, text, response_code) {
 
 
 function get_drone_location(drone_id) {
-	location = { "lat": 12.1234, "lng": -90.1234 };
+	location = { "lat": 0.0, "lng": 0.0 };
+	
+	db.all('SELECT * FROM drones WHERE drone_id=' + drone_id, function(err, rows) {
+		if (process.env.DEBUG === 'true') {
+			console.log('Returning details about drone_id=' + drone_id);
+		}
+		
+		if ((typeof rows) !== 'undefined' && rows.length > 0) {
+			location.lat = rows[0].lat;
+			location.lng = rows[0].lng;
+		}
+		
+		console.log(location);
+	});
+	
 	return location;
 };
 
