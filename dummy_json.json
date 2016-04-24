@@ -1,0 +1,58 @@
+{
+	"drone_id": "abc123",
+	"location":
+	{
+		"lat": 39.5395321,
+		"lng": -119.8178675
+	},
+	"no_fly_zones":
+	[
+		{
+			"type": "polygon",
+			"comment": "Expected to form a closed shape around the No Fly Zone",
+			"coords":
+			[
+				{
+					"lat": 39.5235438,
+					"lng": -119.8179247
+				},
+				{
+					"lat": 39.4998757,
+					"lng": -119.8045837
+				},
+				{
+					"lat": 39.5040977,
+					"lng": -119.8255907
+				}
+			]
+		},
+		{
+			"type": "airport",
+			"comment": "Expected to have a single coordinate centered on an airport, with a 5-mile No Fly Zone",
+			"coords":
+			[
+				{
+					"lat": 39.4977652,
+					"lng": -119.801333
+				}
+			]
+		}
+	],
+	"weather":
+	{
+		"time": "24 Apr 11:150 am PDT",
+		"temp": 29.2,
+		"wind_speed": 1.5,
+		"wind_direction": 1,
+		"wind_gust": 4.5,
+		"precip": 0.5,
+		"visibility": 10.1,
+		"hazards":
+		[
+			{
+				"desc": "This is a hazard.",
+				"url": "http://www.weather.gov/hazard_url"
+			}
+		]
+	}
+}
