@@ -36,4 +36,4 @@ From a browser or other client, open:
 
 (Assuming the server is running locally at `localhost`.)
 
-`{drone_id}` is the unique identifier for your drone. This should be an INTEGER type.
+`{drone_id}` is the unique identifier for your drone.

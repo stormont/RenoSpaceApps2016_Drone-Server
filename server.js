@@ -64,7 +64,7 @@ function send_plain_text(response, text, response_code) {
 function get_drone_location(drone_id) {
 	location = { "lat": 0.0, "lng": 0.0 };
 	
-	db.all('SELECT * FROM drones WHERE drone_id=' + drone_id, function(err, rows) {
+		db.all("SELECT * FROM drones WHERE drone_id='" + id + "'", function(err, rows) {
 		if (process.env.DEBUG === 'true') {
 			console.log('Returning details about drone_id=' + drone_id);
 		}
@@ -73,8 +73,6 @@ function get_drone_location(drone_id) {
 			location.lat = rows[0].lat;
 			location.lng = rows[0].lng;
 		}
-		
-		console.log(location);
 	});
 	
 	return location;
@@ -163,19 +161,19 @@ function post_drone_data(drone_id, query) {
 	lng = get_query_variable(query, 'lng');
 	
 	if ((typeof id) !== 'undefined' && (typeof lat) !== 'undefined' && (typeof lng) !== 'undefined') {
-		db.all('SELECT * FROM drones WHERE drone_id=' + id, function(err, rows) {
+		db.all("SELECT * FROM drones WHERE drone_id='" + id + "'", function(err, rows) {
 			if ((typeof rows) !== 'undefined' && rows.length > 0) {
 				if (process.env.DEBUG === 'true') {
 					console.log('Updating DB');
 				}
 				
-				db.run('UPDATE drones SET lat=' + lat + ', lng=' + lng + ' WHERE drone_id=' + id);
+				db.run('UPDATE drones SET lat=' + lat + ', lng=' + lng + " WHERE drone_id='" + id + "'");
 			} else {
 				if (process.env.DEBUG === 'true') {
 					console.log('Inserting into DB');
 				}
 				
-				db.run('INSERT INTO drones(drone_id, lat, lng) VALUES (' + id + ', ' + lat + ', ' + lng + ')');
+				db.run("INSERT INTO drones(drone_id, lat, lng) VALUES ('" + id + "', " + lat + ', ' + lng + ')');
 			}
 		});
 	}
@@ -230,7 +228,7 @@ function server(request, response) {
 
 db.serialize(function() {
 	if(!db_existed) {
-		db.run("CREATE TABLE drones (drone_id INTEGER, lat REAL, lng REAL)");
+		db.run("CREATE TABLE drones (drone_id TEXT, lat REAL, lng REAL)");
 	}
 });
 
