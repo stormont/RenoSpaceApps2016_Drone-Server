@@ -1,0 +1,8 @@
+{
+  "name": "DronrServer",
+  "version": "0.0.1",
+  "description": "A server to provide drone location and hazard information",
+  "dependencies": {
+    "sqlite3": "^3.1.3"
+  }
+}

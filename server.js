@@ -253,12 +253,12 @@ function server(request, response) {
 		if (process.env.DEBUG === 'true') {
 			console.log('Received GET request');
 		}
-		
+
+		response.setHeader("Access-Control-Allow-Origin", "*");
 	    route_get_request(paths, url_parts.query, function(json_response) {
 			if ((typeof json_response) !== 'undefined') {
 				send_json(response, json_response.data, json_response.code);
 			}
-	
 			response.end();
 	    });
 	} else if (request.method === 'POST') {
