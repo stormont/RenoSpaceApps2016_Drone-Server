@@ -10,6 +10,7 @@
 			{
 				"type": "polygon",
 				"comment": "Expected to form a closed shape around the No Fly Zone",
+				"name": "TFR5438",
 				"coords":
 				[
 					{
@@ -29,6 +30,7 @@
 			{
 				"type": "airport",
 				"comment": "Expected to have a single coordinate centered on an airport, with a 5-mile No Fly Zone",
+				"name": "RNO",
 				"coords":
 				[
 					{
