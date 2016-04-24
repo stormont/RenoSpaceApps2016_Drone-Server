@@ -8,8 +8,14 @@ var sqlite3 = require("sqlite3");
 var db_file = "drones.db";
 var db_existed = fs.existsSync(db_file);
 var db = new sqlite3.Database(db_file);
-var json_whitespace = 3;
+
+var weather_file = 'weather_token.txt';
 var weather_token = '';
+
+var no_fly_zone_file = 'no_fly_zones.json';
+var no_fly_zones = {};
+
+var json_whitespace = 3;
 
 
 Array.prototype.clean = function(deleteValue) {
@@ -269,19 +275,47 @@ function server(request, response) {
 };
 
 
-db.serialize(function() {
-	if (!db_existed) {
-		db.run("CREATE TABLE drones (drone_id TEXT, lat REAL, lng REAL)");
-	}
-});
-
-
-fs.readFile('weather_token.txt', 'utf8', function (err, data) {
-	if (err) {
-		return console.log(err);
-	}
+function read_weather_file(weather_file, callback) {
+	fs.readFile(weather_file, 'utf8', function (err, data) {
+		if (err) {
+			return console.log(err);
+		}
 	
-	weather_token = data;
+		weather_token = data;
+		callback();
+	});
+};
+
+
+function read_no_fly_zone_file(no_fly_zone_file, callback) {
+	fs.readFile(no_fly_zone_file, 'utf8', function (err, data) {
+		if (err) {
+			return console.log(err);
+		}
+	
+		no_fly_zones = data;
+		callback();
+	});
+};
+
+
+function create_db() {
+	db.serialize(function() {
+		if (!db_existed) {
+			db.run("CREATE TABLE drones (drone_id TEXT, lat REAL, lng REAL)");
+		}
+	});
+};
+
+
+function start_server() {
 	http.createServer(server).listen(process.env.PORT);
-	console.log("Server running on " + process.env.PORT); 
+	console.log("Server running on " + process.env.PORT);
+};
+
+
+create_db();
+
+read_weather_file(weather_file, function() {
+	read_no_fly_zone_file(no_fly_zone_file, start_server);
 });

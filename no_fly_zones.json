@@ -1,0 +1,51 @@
+{
+	"comment": "No Fly Zone entries may be duplicated across regions, if they overlap multiple regions",
+	"regions":
+	[
+		{
+			"upper_left":
+			{
+				"lat": 41.1234,
+				"lng": -121.7890
+			},
+			"lower_right":
+			{
+				"lat": 37.1234,
+				"lng": -117.7890
+			},
+			"no_fly_zones":
+			[
+				{
+					"type": "polygon",
+					"comment": "Expected to form a closed shape around the No Fly Zone",
+					"coords":
+					[
+						{
+							"lat": 40.1234,
+							"lng": -120.1234
+						},
+						{
+							"lat": 39.1234,
+							"lng": -120.1234
+						},
+						{
+							"lat": 39.1234,
+							"lng": -119.1234
+						}
+					]
+				},
+				{
+					"type": "airport",
+					"comment": "Expected to have a single coordinate centered on an airport, with a 5-mile No Fly Zone",
+					"coords":
+					[
+						{
+							"lat": 38.1234,
+							"lng": -118.1234
+						}
+					]
+				}
+			]
+		}
+	]
+}
