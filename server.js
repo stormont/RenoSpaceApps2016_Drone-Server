@@ -88,38 +88,35 @@ function get_drone_location(drone_id, callback) {
 
 
 function get_nearby_no_fly_zones(gps, distance, callback) {
-	var no_fly_zones = [
-		{
-			"type": "polygon",
-			"comment": "Expected to form a closed shape around the No Fly Zone",
-			"coords":
-			[
-				{
-					"lat": 12.1234,
-					"lng": -90.1234
-				},
-				{
-					"lat": 12.1234,
-					"lng": -90.1234
-				},
-				{
-					"lat": 12.1234,
-					"lng": -90.1234
-				}
-			]
-		},
-		{
-			"type": "airport",
-			"comment": "Expected to have a single coordinate centered on an airport, with a 5-mile No Fly Zone",
-			"coords":
-			[
-				{
-					"lat": 12.1234,
-					"lng": -90.1234
-				}
-			]
-		}];
-	callback(no_fly_zones);
+	// Very rough region estimate around non-rectangular GPS data.
+	// "Good enough" for our purposes, as +/- 1 degree will almost always
+	// be at least 5 miles (the constraint on No Fly Zones).
+	var client_upper_left = {
+		"lat": gps.lat + 1.0,
+		"lng": gps.lng - 1.0
+	};
+	var client_lower_right = {
+		"lat": gps.lat - 1.0,
+		"lng": gps.lng + 1.0
+	};
+	var nearby_no_fly_zones = [];
+	
+	for (var i = 0; i < no_fly_zones.regions.length; ++i) {
+		var nfz = no_fly_zones.regions[i];
+		
+		if (nfz.lower_right.lat > client_upper_left.lat ||
+			nfz.upper_left.lat < client_lower_right.lat ||
+			nfz.lower_right.lng < client_upper_left.lng ||
+			nfz.upper_left.lng > client_lower_right.lng) {
+			continue;
+		}
+		
+		for (var j = 0; j < nfz.no_fly_zones.length; ++j) {
+			nearby_no_fly_zones.push(nfz.no_fly_zones[j]);
+		}
+	}
+	
+	callback(nearby_no_fly_zones);
 };
 
 
@@ -293,7 +290,7 @@ function read_no_fly_zone_file(no_fly_zone_file, callback) {
 			return console.log(err);
 		}
 	
-		no_fly_zones = data;
+		no_fly_zones = JSON.parse(data);
 		callback();
 	});
 };
