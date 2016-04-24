@@ -330,7 +330,7 @@ function create_db() {
 
 
 function start_server() {
-	var port = process.env.PORT || 80;
+	var port = process.env.PORT || 8080;
 	http.createServer(server).listen(port);
 
 	console.log("Server running on " + port);
