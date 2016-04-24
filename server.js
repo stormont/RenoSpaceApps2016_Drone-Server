@@ -64,7 +64,7 @@ function send_plain_text(response, text, response_code) {
 function get_drone_location(drone_id) {
 	location = { "lat": 0.0, "lng": 0.0 };
 	
-		db.all("SELECT * FROM drones WHERE drone_id='" + id + "'", function(err, rows) {
+		db.all("SELECT * FROM drones WHERE drone_id='" + drone_id + "'", function(err, rows) {
 		if (process.env.DEBUG === 'true') {
 			console.log('Returning details about drone_id=' + drone_id);
 		}
@@ -205,29 +205,41 @@ function server(request, response) {
     var paths = url_parts.pathname.split('/').clean('');
 
 	if (process.env.DEBUG === 'true') {
-	    console.log("Request");
+	    console.log('Request');
 	    console.log(url_parts);
     	console.log(paths);
     }
     
     if (request.method === 'GET') {
-	    json_response = route_get_request(paths, url_parts.query);
-    
-    	if ((typeof json_response) !== 'undefined') {
-	    	send_json(response, json_response.data, json_response.code);
+		if (process.env.DEBUG === 'true') {
+			console.log('Received GET request');
 		}
-    
-	    response.end();
+		
+	    new Promise(function(resolve) {
+	    	resolve(route_get_request(paths, url_parts.query));
+	    }).then(function(json_response) {
+			if ((typeof json_response) !== 'undefined') {
+				send_json(response, json_response.data, json_response.code);
+			}
+	    }).then(function(val) {
+	    	response.end();
+	    });
 	} else if (request.method === 'POST') {
-		console.log('Got POST request');
-		route_post_request(paths, url_parts.query);
-		response.end();
+		if (process.env.DEBUG === 'true') {
+			console.log('Received POST request');
+		}
+		
+		new Promise(function(resolve) {
+	    	resolve(route_post_request(paths, url_parts.query));
+	    }).then(function(val) {
+	    	response.end();
+	    });
 	}
 };
 
 
 db.serialize(function() {
-	if(!db_existed) {
+	if (!db_existed) {
 		db.run("CREATE TABLE drones (drone_id TEXT, lat REAL, lng REAL)");
 	}
 });
