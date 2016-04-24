@@ -14,6 +14,8 @@ Add additional packages:
 
 (The `DEBUG` option can be skipped and will default to `false`.)
 
+(Subsequent instruction assume accessing a server on `localhost` running on port `8080`.)
+
 ## On *Nix
 
 Run:
@@ -30,10 +32,14 @@ Run:
 
 # Getting drone data
 
-From a browser or other client, open:
+From a browser or other client, open (or otherwise run a GET request):
 
 * `http://localhost:8080/drone/{drone_id}`
 
-(Assuming the server is running locally at `localhost`.)
-
 `{drone_id}` is the unique identifier for your drone.
+
+# Posting drone data
+
+Send a POST request to:
+
+* `http://localhost:8080/drone?id={drone_id}&lat={latitude}&lng={longitude}`
