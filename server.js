@@ -9,11 +9,14 @@ var db_file = "drones.db";
 var db_existed = fs.existsSync(db_file);
 var db = new sqlite3.Database(db_file);
 
-var weather_file = 'weather_token.txt';
-var weather_token = '';
+/* var weather_file = 'weather_token.txt';
+var weather_token = ''; */
 
 var no_fly_zone_file = 'no_fly_zones.json';
 var no_fly_zones = {};
+
+var dummy_file = 'dummy_json.json';
+var dummy_zones = {};
 
 var json_whitespace = 3;
 
@@ -295,6 +298,18 @@ function read_no_fly_zone_file(no_fly_zone_file, callback) {
 	});
 };
 
+function read_dummy_file(dummy_file, callback) {
+	fs.readFile(dummy_file, 'utf8', function (err, data) {
+		if (err) {
+			return console.log(err);
+			return console.log(err);
+		}
+	
+		dummy_zones = JSON.parse(data);
+		callback();
+	});
+};
+
 
 function create_db() {
 	db.serialize(function() {
@@ -313,6 +328,6 @@ function start_server() {
 
 create_db();
 
-read_weather_file(weather_file, function() {
+ read_dummy_file(dummy_file, function() {
 	read_no_fly_zone_file(no_fly_zone_file, start_server);
-});
+ });
