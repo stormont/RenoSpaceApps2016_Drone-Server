@@ -2,8 +2,8 @@
 	{
 		"location":
 		{
-			"lat": 39.5395321,
-			"lng": -119.8178675
+			"lat": 39.5395,
+			"lng": -119.8178
 		},
 		"no_fly_zones":
 		[
@@ -56,6 +56,66 @@
 					"url": "http://www.weather.gov/hazard_url"
 				}
 			]
+		}
+	},
+	{
+		"location":
+		{
+			"lat": 33.8121,
+			"lng": -117.9190
+		},
+		"no_fly_zones":
+		[
+			{
+				"type": "airport",
+				"comment": "Expected to have a single coordinate centered on an airport, with a 5-mile No Fly Zone",
+				"name": "DLND",
+				"coords":
+				[
+					{
+						"lat": 33.8121,
+						"lng": -117.9190
+					}
+				]
+			}
+		],
+		"weather":
+		{
+			"time": "24 Apr 11:150 am PDT",
+			"temp": 17.2,
+			"wind_speed": 15,
+			"wind_direction": 0.45,
+			"wind_gust": 40,
+			"precip": 0,
+			"visibility": 100,
+			"hazards":
+			[
+				{
+					"desc": "High Wind Speed",
+					"url": "http://www.weather.gov/hazard_url"
+				}
+			]
+		}
+	},
+	{
+		"location":
+		{
+			"lat": 38.5071,
+			"lng": -112.2757
+		},
+		"no_fly_zones":
+		[	],
+		"weather":
+		{
+			"time": "24 Apr 11:150 am PDT",
+			"temp": 24,
+			"wind_speed": 0.5,
+			"wind_direction": 1,
+			"wind_gust": 1,
+			"precip": 0,
+			"visibility": 100,
+			"hazards":
+			[	]
 		}
 	}
 ]
