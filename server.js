@@ -9,8 +9,8 @@ var db_file = "drones.db";
 var db_existed = fs.existsSync(db_file);
 var db = new sqlite3.Database(db_file);
 
-/* var weather_file = 'weather_token.txt';
-var weather_token = ''; */
+var weather_file = '';
+var weather_token = '';
 
 var no_fly_zone_file = 'no_fly_zones.json';
 var no_fly_zones = {};
@@ -177,6 +177,14 @@ function build_drone_result_json(drone_id, distance, callback) {
 	
 	get_drone_location(drone_id, function(result) {
 		data.location = result;
+		for (var key in dummy_zones) {
+			var obj = dummy_zones [key];
+			if obj.location.lat == data.location.lat && obj.location.lng == data.location.lng {
+				data.weather = obj.weather;
+				data.no_fly_zones = obj.no_fly_zones;
+			}
+			callback(data);
+		}
 		get_nearby_no_fly_zones(data.location, distance, function(result) {
 			data.no_fly_zones = result;
 			get_local_weather(data.location, function(result) {
