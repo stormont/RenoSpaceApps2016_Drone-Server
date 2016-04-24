@@ -61,10 +61,10 @@ function send_plain_text(response, text, response_code) {
 };
 
 
-function get_drone_location(drone_id) {
+function get_drone_location(drone_id, callback) {
 	location = { "lat": 0.0, "lng": 0.0 };
 	
-		db.all("SELECT * FROM drones WHERE drone_id='" + drone_id + "'", function(err, rows) {
+	db.all("SELECT * FROM drones WHERE drone_id='" + drone_id + "'", function(err, rows) {
 		if (process.env.DEBUG === 'true') {
 			console.log('Returning details about drone_id=' + drone_id);
 		}
@@ -73,13 +73,13 @@ function get_drone_location(drone_id) {
 			location.lat = rows[0].lat;
 			location.lng = rows[0].lng;
 		}
+		
+		callback(location);
 	});
-	
-	return location;
 };
 
 
-function get_nearby_no_fly_zones(gps, distance) {
+function get_nearby_no_fly_zones(gps, distance, callback) {
 	no_fly_zones = [
 		{
 			"type": "polygon",
@@ -111,11 +111,11 @@ function get_nearby_no_fly_zones(gps, distance) {
 				}
 			]
 		}];
-	return no_fly_zones;
+	callback(no_fly_zones);
 };
 
 
-function get_local_weather(gps) {
+function get_local_weather(gps, callback) {
 	weather = {
 		"time": "23 Apr 14:15 pm EDT",
 		"temp": 29.2,
@@ -131,27 +131,36 @@ function get_local_weather(gps) {
 				"url": "http://www.weather.gov/hazard_url"
 			}
 		]};
-	return weather;
+	callback(weather);
 };
 
 
-function build_drone_result_json(drone_id, distance) {
+function build_drone_result_json(drone_id, distance, callback) {
 	distance = value_or_default(distance, 20.0);
 	data = {};
 	data.drone_id = drone_id;
-	data.location = get_drone_location(drone_id);
-	data.no_fly_zones = get_nearby_no_fly_zones(data.location, distance);
-	data.weather = get_local_weather(data.location);
-	return data;
+	
+	get_drone_location(drone_id, function(result) {
+		data.location = result;
+		get_nearby_no_fly_zones(data.location, distance, function(result) {
+			data.no_fly_zones = result;
+			get_local_weather(data.location, function(result) {
+				data.weather = result;
+				callback(data);
+			});
+		});
+	});
 };
 
 
-function get_drone_data(drone_id, query) {
+function get_drone_data(drone_id, query, callback) {
 	dist = get_query_variable(query, 'nfzd');
-	result = {};
-	result.data = build_drone_result_json(drone_id, dist);
-	result.code = 200;
-	return result;
+	build_drone_result_json(drone_id, dist, function(data) {
+		result = {};
+		result.data = data;
+		result.code = 200;
+		callback(result);
+	});
 };
 
 
@@ -180,12 +189,10 @@ function post_drone_data(drone_id, query) {
 };
 
 
-function route_get_request(paths, query) {
+function route_get_request(paths, query, callback) {
 	switch (paths[0]) {
 		case "drone":
-			return get_drone_data(paths[1], query);
-		default:
-			return;
+			get_drone_data(paths[1], query, callback);
 	}
 };
 
@@ -205,7 +212,7 @@ function server(request, response) {
     var paths = url_parts.pathname.split('/').clean('');
 
 	if (process.env.DEBUG === 'true') {
-	    console.log('Request');
+	    console.log("Request");
 	    console.log(url_parts);
     	console.log(paths);
     }
@@ -215,25 +222,20 @@ function server(request, response) {
 			console.log('Received GET request');
 		}
 		
-	    new Promise(function(resolve) {
-	    	resolve(route_get_request(paths, url_parts.query));
-	    }).then(function(json_response) {
+	    route_get_request(paths, url_parts.query, function(json_response) {
 			if ((typeof json_response) !== 'undefined') {
 				send_json(response, json_response.data, json_response.code);
 			}
-	    }).then(function(val) {
-	    	response.end();
+	
+			response.end();
 	    });
 	} else if (request.method === 'POST') {
 		if (process.env.DEBUG === 'true') {
 			console.log('Received POST request');
 		}
 		
-		new Promise(function(resolve) {
-	    	resolve(route_post_request(paths, url_parts.query));
-	    }).then(function(val) {
-	    	response.end();
-	    });
+		route_post_request(paths, url_parts.query);
+		response.end();
 	}
 };
 
